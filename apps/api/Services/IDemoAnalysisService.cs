@@ -5,4 +5,6 @@ namespace SpecTrace.Api.Services;
 public interface IDemoAnalysisService
 {
     AnalysisReport CreateCheckoutFailureDemo();
+
+    AnalysisReport CreateInvestigation(CreateInvestigationRequest request);
 }

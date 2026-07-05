@@ -1,0 +1,11 @@
+Incident title:
+Checkout confirmation fails after payment
+
+Environment:
+Production
+
+What happened?
+Customers complete payment successfully, but remain on the processing screen and do not receive an order confirmation after the latest release.
+
+Release version:
+2026.07.05.1

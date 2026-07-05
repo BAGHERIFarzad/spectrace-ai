@@ -99,33 +99,7 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
                 }
             ],
 
-            GeneratedAssets =
-            [
-                new GeneratedAsset
-                {
-                    Type = "Playwright Test",
-                    Title = "checkout-confirms-order-after-successful-payment",
-                    ContentPreview =
-                        "Expect the confirmation page to appear when the payment API returns a successful transactionId.",
-                    Status = "Ready for export"
-                },
-                new GeneratedAsset
-                {
-                    Type = "GitHub Issue",
-                    Title = "Regression: checkout confirmation fails after successful payment",
-                    ContentPreview =
-                        "High-priority production regression with linked video, browser-log, and API-trace evidence.",
-                    Status = "Draft"
-                },
-                new GeneratedAsset
-                {
-                    Type = "Acceptance Criteria",
-                    Title = "Payment confirmation contract",
-                    ContentPreview =
-                        "The checkout must support the approved transactionId response contract and show an order confirmation.",
-                    Status = "Ready for review"
-                }
-            ],
+            GeneratedAssets = CreateGeneratedAssets(),
 
             HumanApproval = new HumanApproval
             {
@@ -144,6 +118,149 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
             },
 
             CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+    }
+
+    public AnalysisReport CreateInvestigation(CreateInvestigationRequest request)
+    {
+        var evidence = request.Evidence
+            .Select((item, index) => new EvidenceItem
+            {
+                Id = $"EV-{index + 1:000}",
+                SourceType = GetSourceType(item.Category),
+                SourceReference = item.FileName,
+                Summary = GetEvidenceSummary(item),
+                Severity = item.Category.Equals("log", StringComparison.OrdinalIgnoreCase)
+                    ? "Critical"
+                    : "High"
+            })
+            .ToList();
+
+        var analysisId = $"ST-INV-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(100, 999)}";
+
+        return new AnalysisReport
+        {
+            AnalysisId = analysisId,
+            Title = request.Title,
+            Status = "Human Approval Required",
+            RiskScore = 78,
+            RiskLevel = "High",
+            ExecutiveSummary =
+                $"SpecTrace created an evidence-linked investigation for {request.Title}. " +
+                $"{evidence.Count} source{(evidence.Count == 1 ? "" : "s")} were attached for the " +
+                $"{request.Environment} environment, release {request.ReleaseVersion}. " +
+                $"The investigation is ready for AI-assisted evidence extraction and human review.",
+
+            RootCause = new RootCauseHypothesis
+            {
+                Title = "Investigation pending multimodal evidence analysis",
+                Description =
+                    $"The uploaded evidence suggests a potential regression related to: {request.Description}. " +
+                    "SpecTrace has created a traceable investigation and will correlate visual, textual, and technical signals.",
+                Confidence = 68,
+                Recommendation =
+                    "Review the uploaded evidence, validate the release change set, and run the generated regression checks before approval."
+            },
+
+            Timeline =
+            [
+                new TimelineEvent
+                {
+                    Timestamp = "00:00",
+                    Title = "Investigation created",
+                    Description = $"Incident registered for {request.Environment}, release {request.ReleaseVersion}.",
+                    Severity = "Info"
+                },
+                new TimelineEvent
+                {
+                    Timestamp = "00:04",
+                    Title = "Evidence attached",
+                    Description = $"{evidence.Count} evidence source{(evidence.Count == 1 ? "" : "s")} added to the investigation.",
+                    Severity = "Info"
+                },
+                new TimelineEvent
+                {
+                    Timestamp = "00:08",
+                    Title = "Cross-source correlation queued",
+                    Description = "SpecTrace prepared the evidence set for multimodal analysis and trace generation.",
+                    Severity = "High"
+                }
+            ],
+
+            Evidence = evidence,
+
+            GeneratedAssets = CreateGeneratedAssets(),
+
+            HumanApproval = new HumanApproval
+            {
+                Required = true,
+                Reason =
+                    "This investigation may affect release quality and customer experience. " +
+                    "A human reviewer must validate the findings before export.",
+                Status = "Pending reviewer decision"
+            },
+
+            AmdProcessing = new AmdProcessingInfo
+            {
+                Status = "Evidence pipeline queued",
+                Runtime = "AMD GPU / ROCm multimodal worker",
+                Pipeline = "Evidence ingestion → frame extraction → log interpretation → multimodal correlation → QA asset generation"
+            },
+
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+    }
+
+    private static List<GeneratedAsset> CreateGeneratedAssets()
+    {
+        return
+        [
+            new GeneratedAsset
+            {
+                Type = "Playwright Test",
+                Title = "generated-regression-check",
+                ContentPreview =
+                    "A browser regression test will validate the primary journey described by the investigation.",
+                Status = "Ready for review"
+            },
+            new GeneratedAsset
+            {
+                Type = "GitHub Issue",
+                Title = "Evidence-linked product investigation",
+                ContentPreview =
+                    "A structured engineering issue with linked evidence, risk context, and recommended next actions.",
+                Status = "Draft"
+            },
+            new GeneratedAsset
+            {
+                Type = "Acceptance Criteria",
+                Title = "Release safety criteria",
+                ContentPreview =
+                    "Clear validation criteria generated from the incident description and evidence sources.",
+                Status = "Ready for review"
+            }
+        ];
+    }
+
+    private static string GetSourceType(string category)
+    {
+        return category.ToLowerInvariant() switch
+        {
+            "video" => "Video",
+            "screenshot" => "Screenshot",
+            "log" => "Application Log",
+            _ => "Evidence File"
+        };
+    }
+
+    private static string GetEvidenceSummary(UploadedEvidenceReference evidence)
+    {
+        return evidence.Category.ToLowerInvariant() switch
+        {
+            "video" => "Screen recording attached for visual journey and interaction analysis.",
+            "screenshot" => "Visual product evidence attached for UI-state and error-context analysis.",
+            "log" => "Technical trace attached for exception, API, and runtime correlation.",
+            _ => "Evidence file attached to the investigation."
         };
     }
 }

@@ -1,6 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import {
+  Activity,
+  ArrowUpRight,
+  Command,
+  FileSearch,
+  Layers3,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+import EvidenceUploadPanel from "@/components/EvidenceUploadPanel";
 
 type TimelineEvent = {
   timestamp: string;
@@ -86,228 +96,391 @@ export default function Home() {
   }
 
   return (
-    <main className="app-shell">
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark">S</div>
-          <div>
+    <main className="spectrace-shell">
+      <div className="ambient ambient-one" />
+      <div className="ambient ambient-two" />
+      <div className="grid-overlay" />
+
+      <aside className="command-rail">
+        <div className="rail-brand">
+          <div className="rail-logo">
+            <Command size={19} strokeWidth={2.8} />
+          </div>
+
+          <div className="rail-brand-copy">
             <strong>SpecTrace</strong>
-            <span>Evidence Intelligence</span>
+            <span>Evidence OS</span>
           </div>
         </div>
 
-        <nav className="nav-links">
-          <a className="nav-link active" href="#workspace">
-            <span>◈</span> Workspace
+        <nav className="rail-navigation">
+          <a className="rail-link rail-link-active" href="#workspace">
+            <Layers3 size={17} />
+            <span>Workspace</span>
           </a>
-          <a className="nav-link" href="#evidence">
-            <span>◌</span> Evidence
+
+          <a className="rail-link" href="#upload">
+            <FileSearch size={17} />
+            <span>Evidence</span>
           </a>
-          <a className="nav-link" href="#assets">
-            <span>✦</span> Generated Assets
+
+          <a className="rail-link" href="#assets">
+            <Sparkles size={17} />
+            <span>Assets</span>
           </a>
-          <a className="nav-link" href="#amd">
-            <span>▣</span> AMD Processing
+
+          <a className="rail-link" href="#amd">
+            <Activity size={17} />
+            <span>AMD Runtime</span>
           </a>
         </nav>
 
-        <div className="sidebar-footer">
-          <div className="gpu-indicator">
-            <span className="pulse" />
-            AMD-ready pipeline
+        <div className="rail-runtime">
+          <div className="runtime-pulse">
+            <span />
+            AMD PIPELINE ONLINE
           </div>
-          <p>Built for traceable AI-assisted quality engineering.</p>
+
+          <p>Multimodal evidence intelligence for engineering teams.</p>
         </div>
       </aside>
 
-      <section className="content">
-        <header className="topbar">
-          <div>
-            <p className="eyebrow">PRODUCT EVIDENCE WORKSPACE</p>
-            <h1>Turn product evidence into release-ready action.</h1>
+      <section className="experience-stage">
+        <header className="experience-topbar">
+          <div className="topbar-context">
+            <span className="topbar-status-dot" />
+            <span>Evidence Intelligence Platform</span>
           </div>
 
-          <button
-            className="primary-button"
-            onClick={loadDemoAnalysis}
-            disabled={isLoading}
-          >
-            {isLoading ? "Analyzing evidence..." : "Load demo incident"}
-          </button>
+          <div className="topbar-actions">
+            <span className="topbar-live">
+              <Activity size={14} />
+              Live workspace
+            </span>
+
+            <button
+              className="topbar-demo-button"
+              onClick={loadDemoAnalysis}
+              disabled={isLoading}
+            >
+              {isLoading ? "Loading..." : "Launch demo"}
+              <ArrowUpRight size={16} />
+            </button>
+          </div>
         </header>
 
-        {!analysis && !isLoading && (
-          <section className="empty-state" id="workspace">
-            <div className="empty-orb">◈</div>
-            <p className="eyebrow">READY FOR ANALYSIS</p>
-            <h2>Trace every bug back to the evidence.</h2>
+        <section className="hero-command" id="workspace">
+          <div className="hero-copy">
+            <div className="hero-kicker">
+              <span />
+              PRODUCT EVIDENCE, MADE ACTIONABLE
+            </div>
+
+            <h1>
+              Find the truth
+              <br />
+              <em>behind every release.</em>
+            </h1>
+
             <p>
-              Load our checkout incident demo to explore video evidence, logs,
-              root-cause reasoning, generated tests, and approval controls.
+              SpecTrace turns fragmented product evidence into a single,
+              evidence-linked investigation your engineering team can trust.
             </p>
 
-            <button className="secondary-button" onClick={loadDemoAnalysis}>
-              Explore checkout failure demo
-            </button>
-          </section>
-        )}
+            <div className="hero-signals">
+              <div>
+                <strong>01</strong>
+                <span>Attach evidence</span>
+              </div>
+
+              <div>
+                <strong>02</strong>
+                <span>Trace signals</span>
+              </div>
+
+              <div>
+                <strong>03</strong>
+                <span>Ship safely</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-visual">
+            <div className="visual-orbit orbit-one" />
+            <div className="visual-orbit orbit-two" />
+            <div className="visual-core">
+              <div className="visual-core-inner">
+                <ShieldCheck size={54} strokeWidth={1.35} />
+              </div>
+            </div>
+
+            <div className="visual-signal-card signal-card-top">
+              <span className="signal-dot signal-dot-cyan" />
+              Evidence graph initialized
+            </div>
+
+            <div className="visual-signal-card signal-card-bottom">
+              <span className="signal-dot signal-dot-green" />
+              Traceability enabled
+            </div>
+
+            <div className="visual-metric visual-metric-left">
+              <span>Signal confidence</span>
+              <strong>94.8%</strong>
+            </div>
+
+            <div className="visual-metric visual-metric-right">
+              <span>Evidence sources</span>
+              <strong>∞</strong>
+            </div>
+          </div>
+        </section>
+
+        <EvidenceUploadPanel
+          onInvestigationCreated={(createdAnalysis) => {
+            setAnalysis(createdAnalysis);
+
+            window.setTimeout(() => {
+              document
+                .getElementById("analysis-command-center")
+                ?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+            }, 150);
+          }}
+        />
 
         {isLoading && (
-          <section className="loading-state">
-            <div className="loader" />
-            <h2>Building an evidence graph</h2>
+          <section className="cinematic-loading">
+            <div className="cinematic-loader">
+              <span />
+              <span />
+              <span />
+            </div>
+
+            <p className="hero-kicker">
+              <span />
+              BUILDING INVESTIGATION GRAPH
+            </p>
+
+            <h2>Correlating every signal.</h2>
+
             <p>
-              Correlating video frames, logs, API traces, and customer signals.
+              Video frames, logs, screenshots, and customer evidence are entering
+              the SpecTrace reasoning pipeline.
             </p>
           </section>
         )}
 
-        {error && <div className="error-banner">{error}</div>}
+        {error && <div className="experience-error">{error}</div>}
 
         {analysis && (
-          <div className="dashboard-grid" id="workspace">
-            <section className="hero-card">
-              <div className="hero-card-top">
-                <div>
-                  <p className="eyebrow">ANALYSIS {analysis.analysisId}</p>
-                  <h2>{analysis.title}</h2>
+          <section
+            id="analysis-command-center"
+            className="analysis-command-center"
+          >
+            <div className="analysis-intro">
+              <div>
+                <p className="hero-kicker">
+                  <span />
+                  INVESTIGATION COMPLETE
+                </p>
+
+                <h2>{analysis.title}</h2>
+
+                <p>{analysis.executiveSummary}</p>
+              </div>
+
+              <div className="analysis-id-block">
+                <span>TRACE ID</span>
+                <strong>{analysis.analysisId}</strong>
+                <small>{analysis.status}</small>
+              </div>
+            </div>
+
+            <div className="analysis-scoreboard">
+              <article className="score-card score-card-danger">
+                <span>Release exposure</span>
+                <strong>{analysis.riskScore}</strong>
+                <small>{analysis.riskLevel} priority</small>
+              </article>
+
+              <article className="score-card">
+                <span>Root-cause confidence</span>
+                <strong>{analysis.rootCause.confidence}%</strong>
+                <small>Evidence-linked conclusion</small>
+              </article>
+
+              <article className="score-card">
+                <span>Connected sources</span>
+                <strong>{analysis.evidence.length}</strong>
+                <small>Signals in the evidence graph</small>
+              </article>
+
+              <article className="score-card score-card-cyan">
+                <span>Generated outputs</span>
+                <strong>{analysis.generatedAssets.length}</strong>
+                <small>Ready for engineering review</small>
+              </article>
+            </div>
+
+            <div className="analysis-layout">
+              <section className="command-card command-card-root">
+                <div className="command-card-label">
+                  <Sparkles size={15} />
+                  ROOT-CAUSE HYPOTHESIS
                 </div>
-                <span className="status-pill">{analysis.status}</span>
-              </div>
 
-              <p className="hero-summary">{analysis.executiveSummary}</p>
+                <h3>{analysis.rootCause.title}</h3>
 
-              <div className="metric-row">
-                <div className="metric risk-metric">
-                  <span>Release risk</span>
-                  <strong>{analysis.riskScore}</strong>
-                  <small>{analysis.riskLevel} priority</small>
+                <p>{analysis.rootCause.description}</p>
+
+                <div className="command-recommendation">
+                  <span>RECOMMENDED ACTION</span>
+                  <strong>{analysis.rootCause.recommendation}</strong>
+                </div>
+              </section>
+
+              <section className="command-card command-card-timeline">
+                <div className="command-card-label">
+                  <Activity size={15} />
+                  EVIDENCE TIMELINE
                 </div>
 
-                <div className="metric">
-                  <span>Root-cause confidence</span>
-                  <strong>{analysis.rootCause.confidence}%</strong>
-                  <small>Evidence-linked conclusion</small>
-                </div>
+                <div className="modern-timeline">
+                  {analysis.timeline.map((event) => (
+                    <article className="modern-timeline-item" key={event.timestamp}>
+                      <span
+                        className={`modern-timeline-node ${severityClass(
+                          event.severity
+                        )}`}
+                      />
 
-                <div className="metric">
-                  <span>Evidence sources</span>
-                  <strong>{analysis.evidence.length}</strong>
-                  <small>Cross-validated signals</small>
-                </div>
-              </div>
-            </section>
-
-            <section className="root-cause-card">
-              <div className="card-label">
-                <span>✦</span> ROOT-CAUSE HYPOTHESIS
-              </div>
-              <h3>{analysis.rootCause.title}</h3>
-              <p>{analysis.rootCause.description}</p>
-
-              <div className="recommendation">
-                <strong>Recommended action</strong>
-                <span>{analysis.rootCause.recommendation}</span>
-              </div>
-            </section>
-
-            <section className="timeline-card">
-              <div className="section-heading">
-                <div>
-                  <p className="eyebrow">USER JOURNEY</p>
-                  <h3>Failure timeline</h3>
-                </div>
-                <span className="count-badge">{analysis.timeline.length} events</span>
-              </div>
-
-              <div className="timeline">
-                {analysis.timeline.map((event) => (
-                  <article className="timeline-item" key={event.timestamp}>
-                    <span className={`timeline-dot ${severityClass(event.severity)}`} />
-                    <div className="timeline-time">{event.timestamp}</div>
-                    <div>
-                      <h4>{event.title}</h4>
-                      <p>{event.description}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-            <section className="evidence-card" id="evidence">
-              <div className="section-heading">
-                <div>
-                  <p className="eyebrow">TRACEABLE PROOF</p>
-                  <h3>Evidence graph</h3>
-                </div>
-                <span className="verified-label">Verified links</span>
-              </div>
-
-              <div className="evidence-list">
-                {analysis.evidence.map((item) => (
-                  <article className="evidence-item" key={item.id}>
-                    <div className={`evidence-icon ${severityClass(item.severity)}`}>
-                      {item.sourceType.charAt(0)}
-                    </div>
-                    <div className="evidence-content">
-                      <div className="evidence-meta">
-                        <strong>{item.sourceType}</strong>
-                        <span>{item.sourceReference}</span>
+                      <div className="modern-timeline-time">
+                        {event.timestamp}
                       </div>
-                      <p>{item.summary}</p>
+
+                      <div>
+                        <h4>{event.title}</h4>
+                        <p>{event.description}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <section className="command-card evidence-command-card" id="evidence">
+              <div className="command-card-header">
+                <div>
+                  <div className="command-card-label">
+                    <FileSearch size={15} />
+                    EVIDENCE GRAPH
+                  </div>
+
+                  <h3>Every conclusion is linked to proof.</h3>
+                </div>
+
+                <span className="trace-verified">
+                  <ShieldCheck size={15} />
+                  Traceable sources
+                </span>
+              </div>
+
+              <div className="modern-evidence-grid">
+                {analysis.evidence.map((item) => (
+                  <article className="modern-evidence-item" key={item.id}>
+                    <div className="evidence-item-topline">
+                      <span className="evidence-source-icon">
+                        {item.sourceType.charAt(0)}
+                      </span>
+
+                      <span className={`evidence-severity ${severityClass(item.severity)}`}>
+                        {item.severity}
+                      </span>
                     </div>
-                    <span className={`severity-tag ${severityClass(item.severity)}`}>
-                      {item.severity}
-                    </span>
+
+                    <span className="evidence-source-type">{item.sourceType}</span>
+
+                    <h4>{item.sourceReference}</h4>
+
+                    <p>{item.summary}</p>
+
+                    <span className="evidence-trace-id">{item.id}</span>
                   </article>
                 ))}
               </div>
             </section>
 
-            <section className="assets-card" id="assets">
-              <div className="section-heading">
+            <section className="command-card assets-command-card" id="assets">
+              <div className="command-card-header">
                 <div>
-                  <p className="eyebrow">ENGINEERING OUTPUTS</p>
-                  <h3>Generated assets</h3>
+                  <div className="command-card-label">
+                    <Sparkles size={15} />
+                    GENERATED ENGINEERING ASSETS
+                  </div>
+
+                  <h3>From evidence to execution.</h3>
                 </div>
               </div>
 
-              <div className="asset-grid">
+              <div className="modern-assets-grid">
                 {analysis.generatedAssets.map((asset) => (
-                  <article className="asset-item" key={asset.title}>
-                    <span className="asset-type">{asset.type}</span>
+                  <article className="modern-asset-item" key={asset.title}>
+                    <span>{asset.type}</span>
                     <h4>{asset.title}</h4>
                     <p>{asset.contentPreview}</p>
-                    <div className="asset-footer">
-                      <span>{asset.status}</span>
-                      <button type="button">View draft →</button>
+
+                    <div>
+                      <small>{asset.status}</small>
+                      <button type="button">
+                        Open draft <ArrowUpRight size={14} />
+                      </button>
                     </div>
                   </article>
                 ))}
               </div>
             </section>
 
-            <section className="approval-card">
+            <section className="human-review-stage">
               <div>
-                <p className="eyebrow">HUMAN-IN-THE-LOOP</p>
+                <p className="hero-kicker">
+                  <span />
+                  HUMAN APPROVAL GATE
+                </p>
+
                 <h3>{analysis.humanApproval.status}</h3>
+
                 <p>{analysis.humanApproval.reason}</p>
               </div>
-              <button className="approval-button" type="button">
-                Review before export
+
+              <button type="button">
+                Review investigation
+                <ArrowUpRight size={17} />
               </button>
             </section>
 
-            <section className="amd-card" id="amd">
-              <div className="amd-logo">AMD</div>
+            <section className="amd-runtime-stage" id="amd">
+              <div className="amd-runtime-mark">
+                <span>AMD</span>
+                <small>ROCm / GPU Runtime</small>
+              </div>
+
               <div>
-                <p className="eyebrow">AMD PLATFORM INTEGRATION</p>
+                <p className="hero-kicker">
+                  <span />
+                  AMD PLATFORM INTEGRATION
+                </p>
+
                 <h3>{analysis.amdProcessing.status}</h3>
+
                 <p>{analysis.amdProcessing.pipeline}</p>
+
                 <small>{analysis.amdProcessing.runtime}</small>
               </div>
             </section>
-          </div>
+          </section>
         )}
       </section>
     </main>

@@ -23,4 +23,30 @@ public sealed class AnalysesController : ControllerBase
 
         return Ok(analysis);
     }
+
+    [HttpPost("investigate")]
+    [ProducesResponseType(typeof(AnalysisReport), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public ActionResult<AnalysisReport> CreateInvestigation(
+        [FromBody] CreateInvestigationRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Title))
+        {
+            return BadRequest("An incident title is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Description))
+        {
+            return BadRequest("An issue description is required.");
+        }
+
+        if (request.Evidence.Count == 0)
+        {
+            return BadRequest("Attach at least one evidence file before creating an investigation.");
+        }
+
+        var analysis = _demoAnalysisService.CreateInvestigation(request);
+
+        return Ok(analysis);
+    }
 }
