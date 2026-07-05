@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import EvidenceUploadPanel from "@/components/EvidenceUploadPanel";
 import ArtifactStudio from "@/components/ArtifactStudio";
+import ReviewConsole from "@/components/ReviewConsole";
 
 type TimelineEvent = {
   timestamp: string;
@@ -72,6 +73,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedAsset, setSelectedAsset] = useState<GeneratedAsset | null>(null);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
 
   async function loadDemoAnalysis() {
     setIsLoading(true);
@@ -457,7 +459,7 @@ export default function Home() {
                 <p>{analysis.humanApproval.reason}</p>
               </div>
 
-              <button type="button">
+              <button type="button" onClick={() => setIsReviewOpen(true)}>
                 Review investigation
                 <ArrowUpRight size={17} />
               </button>
@@ -494,6 +496,47 @@ export default function Home() {
           recommendation={analysis.rootCause.recommendation}
           evidence={analysis.evidence}
           onClose={() => setSelectedAsset(null)}
+        />
+      )}
+      {isReviewOpen && analysis && (
+        <ReviewConsole
+          analysisId={analysis.analysisId}
+          investigationTitle={analysis.title}
+          riskScore={analysis.riskScore}
+          rootCauseTitle={analysis.rootCause.title}
+          onClose={() => setIsReviewOpen(false)}
+          onDecision={(decision, note) => {
+            const nextStatus =
+              decision === "approve"
+                ? "Approved for release"
+                : decision === "block"
+                  ? "Release blocked"
+                  : "Changes requested";
+
+            const nextReason =
+              note ||
+              (decision === "approve"
+                ? "A reviewer approved the release after validating the current evidence."
+                : decision === "block"
+                  ? "A reviewer blocked the release because the current evidence indicates unacceptable risk."
+                  : "A reviewer requested corrective changes before release approval.");
+
+            setAnalysis((current) =>
+              current
+                ? {
+                    ...current,
+                    status: nextStatus,
+                    humanApproval: {
+                      ...current.humanApproval,
+                      status: nextStatus,
+                      reason: nextReason,
+                    },
+                  }
+                : current
+            );
+
+            setIsReviewOpen(false);
+          }}
         />
       )}
     </main>
