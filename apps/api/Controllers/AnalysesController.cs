@@ -27,7 +27,7 @@ public sealed class AnalysesController : ControllerBase
     [HttpPost("investigate")]
     [ProducesResponseType(typeof(AnalysisReport), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<AnalysisReport> CreateInvestigation(
+    public async Task<ActionResult<AnalysisReport>> CreateInvestigation(
         [FromBody] CreateInvestigationRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Title))
@@ -45,7 +45,9 @@ public sealed class AnalysesController : ControllerBase
             return BadRequest("Attach at least one evidence file before creating an investigation.");
         }
 
-        var analysis = _demoAnalysisService.CreateInvestigation(request);
+        var analysis = await _demoAnalysisService.CreateInvestigationAsync(
+            request,
+            HttpContext.RequestAborted);
 
         return Ok(analysis);
     }

@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IDemoAnalysisService, DemoAnalysisService>();
+builder.Services.AddSingleton<ILogEvidenceAnalyzer, LogEvidenceAnalyzer>();
 
 builder.Services.AddCors(options =>
 {

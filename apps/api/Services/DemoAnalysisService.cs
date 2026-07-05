@@ -4,6 +4,12 @@ namespace SpecTrace.Api.Services;
 
 public sealed class DemoAnalysisService : IDemoAnalysisService
 {
+    private readonly ILogEvidenceAnalyzer _logEvidenceAnalyzer;
+
+    public DemoAnalysisService(ILogEvidenceAnalyzer logEvidenceAnalyzer)
+    {
+        _logEvidenceAnalyzer = logEvidenceAnalyzer;
+    }
     public AnalysisReport CreateCheckoutFailureDemo()
     {
         return new AnalysisReport
@@ -121,45 +127,75 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
         };
     }
 
-    public AnalysisReport CreateInvestigation(CreateInvestigationRequest request)
+    public async Task<AnalysisReport> CreateInvestigationAsync(
+        CreateInvestigationRequest request,
+        CancellationToken cancellationToken = default)
     {
+        var logEvidence = request.Evidence
+            .Where(item => item.Category.Equals("log", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        LogEvidenceAnalysis? logAnalysis = null;
+
+        foreach (var log in logEvidence)
+        {
+            var result = await _logEvidenceAnalyzer.AnalyzeAsync(log, cancellationToken);
+
+            if (result is not null)
+            {
+                logAnalysis = result;
+                break;
+            }
+        }
+
         var evidence = request.Evidence
             .Select((item, index) => new EvidenceItem
             {
                 Id = $"EV-{index + 1:000}",
                 SourceType = GetSourceType(item.Category),
                 SourceReference = item.FileName,
-                Summary = GetEvidenceSummary(item),
-                Severity = item.Category.Equals("log", StringComparison.OrdinalIgnoreCase)
-                    ? "Critical"
-                    : "High"
+                Summary = GetEvidenceSummary(item, logAnalysis),
+                Severity = GetEvidenceSeverity(item, logAnalysis)
             })
             .ToList();
 
         var analysisId = $"ST-INV-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(100, 999)}";
+
+        var rootCause = logAnalysis ?? new LogEvidenceAnalysis
+        {
+            RootCauseTitle = "Investigation pending multimodal evidence analysis",
+            RootCauseDescription =
+                $"The uploaded evidence suggests a potential regression related to: {request.Description}. " +
+                "SpecTrace has created a traceable investigation and will correlate visual, textual, and technical signals.",
+            Recommendation =
+                "Review the uploaded evidence, validate the release change set, and run the generated regression checks before approval.",
+            Confidence = 68,
+            RiskScore = 78,
+            RiskLevel = "High"
+        };
+
+        var detectedSignalText = logAnalysis?.DetectedSignals.Count > 0
+            ? $" Detected signals: {string.Join(" ", logAnalysis.DetectedSignals)}"
+            : string.Empty;
 
         return new AnalysisReport
         {
             AnalysisId = analysisId,
             Title = request.Title,
             Status = "Human Approval Required",
-            RiskScore = 78,
-            RiskLevel = "High",
+            RiskScore = rootCause.RiskScore,
+            RiskLevel = rootCause.RiskLevel,
             ExecutiveSummary =
-                $"SpecTrace created an evidence-linked investigation for {request.Title}. " +
-                $"{evidence.Count} source{(evidence.Count == 1 ? "" : "s")} were attached for the " +
-                $"{request.Environment} environment, release {request.ReleaseVersion}. " +
-                $"The investigation is ready for AI-assisted evidence extraction and human review.",
+                $"SpecTrace analyzed {evidence.Count} uploaded evidence source{(evidence.Count == 1 ? "" : "s")} " +
+                $"for {request.Environment}, release {request.ReleaseVersion}. " +
+                $"{rootCause.RootCauseTitle}.{detectedSignalText}",
 
             RootCause = new RootCauseHypothesis
             {
-                Title = "Investigation pending multimodal evidence analysis",
-                Description =
-                    $"The uploaded evidence suggests a potential regression related to: {request.Description}. " +
-                    "SpecTrace has created a traceable investigation and will correlate visual, textual, and technical signals.",
-                Confidence = 68,
-                Recommendation =
-                    "Review the uploaded evidence, validate the release change set, and run the generated regression checks before approval."
+                Title = rootCause.RootCauseTitle,
+                Description = rootCause.RootCauseDescription,
+                Confidence = rootCause.Confidence,
+                Recommendation = rootCause.Recommendation
             },
 
             Timeline =
@@ -174,21 +210,24 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
                 new TimelineEvent
                 {
                     Timestamp = "00:04",
-                    Title = "Evidence attached",
-                    Description = $"{evidence.Count} evidence source{(evidence.Count == 1 ? "" : "s")} added to the investigation.",
+                    Title = "Evidence ingested",
+                    Description = $"{evidence.Count} evidence source{(evidence.Count == 1 ? "" : "s")} attached to the investigation.",
                     Severity = "Info"
                 },
                 new TimelineEvent
                 {
                     Timestamp = "00:08",
-                    Title = "Cross-source correlation queued",
-                    Description = "SpecTrace prepared the evidence set for multimodal analysis and trace generation.",
-                    Severity = "High"
+                    Title = logAnalysis is null
+                        ? "Multimodal correlation queued"
+                        : "Technical failure signals detected",
+                    Description = logAnalysis is null
+                        ? "SpecTrace prepared the evidence set for multimodal analysis and trace generation."
+                        : string.Join(" ", logAnalysis.DetectedSignals),
+                    Severity = logAnalysis is null ? "High" : "Critical"
                 }
             ],
 
             Evidence = evidence,
-
             GeneratedAssets = CreateGeneratedAssets(),
 
             HumanApproval = new HumanApproval
@@ -202,9 +241,12 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
 
             AmdProcessing = new AmdProcessingInfo
             {
-                Status = "Evidence pipeline queued",
+                Status = logAnalysis is null
+                    ? "Evidence pipeline queued"
+                    : "Log evidence analyzed",
                 Runtime = "AMD GPU / ROCm multimodal worker",
-                Pipeline = "Evidence ingestion → frame extraction → log interpretation → multimodal correlation → QA asset generation"
+                Pipeline =
+                    "Evidence ingestion → log signal extraction → multimodal correlation → root-cause reasoning → QA asset generation"
             },
 
             CreatedAtUtc = DateTimeOffset.UtcNow
@@ -253,8 +295,16 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
         };
     }
 
-    private static string GetEvidenceSummary(UploadedEvidenceReference evidence)
+    private static string GetEvidenceSummary(
+        UploadedEvidenceReference evidence,
+        LogEvidenceAnalysis? logAnalysis)
     {
+        if (evidence.Category.Equals("log", StringComparison.OrdinalIgnoreCase) &&
+            logAnalysis?.DetectedSignals.Count > 0)
+        {
+            return string.Join(" ", logAnalysis.DetectedSignals);
+        }
+
         return evidence.Category.ToLowerInvariant() switch
         {
             "video" => "Screen recording attached for visual journey and interaction analysis.",
@@ -262,5 +312,21 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
             "log" => "Technical trace attached for exception, API, and runtime correlation.",
             _ => "Evidence file attached to the investigation."
         };
+    }
+    private static string GetEvidenceSeverity(
+        UploadedEvidenceReference evidence,
+        LogEvidenceAnalysis? logAnalysis)
+    {
+        if (evidence.Category.Equals("log", StringComparison.OrdinalIgnoreCase) &&
+            logAnalysis is not null)
+        {
+            return logAnalysis.RiskLevel.Equals("High", StringComparison.OrdinalIgnoreCase)
+                ? "Critical"
+                : "High";
+        }
+
+        return evidence.Category.Equals("log", StringComparison.OrdinalIgnoreCase)
+            ? "Critical"
+            : "High";
     }
 }

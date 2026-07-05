@@ -6,5 +6,7 @@ public interface IDemoAnalysisService
 {
     AnalysisReport CreateCheckoutFailureDemo();
 
-    AnalysisReport CreateInvestigation(CreateInvestigationRequest request);
+    Task<AnalysisReport> CreateInvestigationAsync(
+        CreateInvestigationRequest request,
+        CancellationToken cancellationToken = default);
 }
