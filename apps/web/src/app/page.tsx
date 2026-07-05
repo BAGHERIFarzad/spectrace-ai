@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import EvidenceUploadPanel from "@/components/EvidenceUploadPanel";
+import ArtifactStudio from "@/components/ArtifactStudio";
 
 type TimelineEvent = {
   timestamp: string;
@@ -70,6 +71,7 @@ export default function Home() {
   const [analysis, setAnalysis] = useState<AnalysisReport | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedAsset, setSelectedAsset] = useState<GeneratedAsset | null>(null);
 
   async function loadDemoAnalysis() {
     setIsLoading(true);
@@ -432,12 +434,12 @@ export default function Home() {
                     <h4>{asset.title}</h4>
                     <p>{asset.contentPreview}</p>
 
-                    <div>
-                      <small>{asset.status}</small>
-                      <button type="button">
-                        Open draft <ArrowUpRight size={14} />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedAsset(asset)}
+                    >
+                      Open draft <ArrowUpRight size={14} />
+                    </button>
                   </article>
                 ))}
               </div>
@@ -483,6 +485,17 @@ export default function Home() {
           </section>
         )}
       </section>
+      {selectedAsset && analysis && (
+        <ArtifactStudio
+          asset={selectedAsset}
+          analysisId={analysis.analysisId}
+          investigationTitle={analysis.title}
+          rootCauseTitle={analysis.rootCause.title}
+          recommendation={analysis.rootCause.recommendation}
+          evidence={analysis.evidence}
+          onClose={() => setSelectedAsset(null)}
+        />
+      )}
     </main>
   );
 }
