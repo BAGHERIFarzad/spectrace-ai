@@ -1,0 +1,43 @@
+services:
+  gemma:
+    image: vllm/vllm-openai-rocm:v0.15.0
+    container_name: spectrace-gemma
+    command: >
+      --model google/gemma-3-4b-it
+      --host 0.0.0.0
+      --port 8001
+      --dtype bfloat16
+      --max-model-len 4096
+    ports:
+      - "8001:8001"
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+    ipc: host
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    shm_size: 8g
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN}
+    volumes:
+      - hf-cache:/root/.cache/huggingface
+
+  ai-worker:
+    build:
+      context: .
+    container_name: spectrace-ai-worker
+    ports:
+      - "8000:8000"
+    environment:
+      AI_WORKER_MODE: gemma
+      GEMMA_BASE_URL: http://gemma:8001/v1
+      GEMMA_MODEL: google/gemma-3-4b-it
+    depends_on:
+      - gemma
+
+volumes:
+  hf-cache:
