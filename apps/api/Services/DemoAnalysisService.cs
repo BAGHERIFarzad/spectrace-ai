@@ -5,11 +5,16 @@ namespace SpecTrace.Api.Services;
 public sealed class DemoAnalysisService : IDemoAnalysisService
 {
     private readonly ILogEvidenceAnalyzer _logEvidenceAnalyzer;
+    private readonly IAiWorkerClient _aiWorkerClient;
 
-    public DemoAnalysisService(ILogEvidenceAnalyzer logEvidenceAnalyzer)
+    public DemoAnalysisService(
+        ILogEvidenceAnalyzer logEvidenceAnalyzer,
+        IAiWorkerClient aiWorkerClient)
     {
         _logEvidenceAnalyzer = logEvidenceAnalyzer;
+        _aiWorkerClient = aiWorkerClient;
     }
+
     public AnalysisReport CreateCheckoutFailureDemo()
     {
         return new AnalysisReport
@@ -119,8 +124,9 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
             AmdProcessing = new AmdProcessingInfo
             {
                 Status = "Demo mode",
-                Runtime = "AMD GPU / ROCm worker will be connected at hackathon kickoff",
-                Pipeline = "Video frames → multimodal evidence extraction → root-cause reasoning → QA asset generation"
+                Runtime = "Demo evidence dataset",
+                Pipeline =
+                    "Video frames → multimodal evidence extraction → root-cause reasoning → QA asset generation"
             },
 
             CreatedAtUtc = DateTimeOffset.UtcNow
@@ -139,7 +145,9 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
 
         foreach (var log in logEvidence)
         {
-            var result = await _logEvidenceAnalyzer.AnalyzeAsync(log, cancellationToken);
+            var result = await _logEvidenceAnalyzer.AnalyzeAsync(
+                log,
+                cancellationToken);
 
             if (result is not null)
             {
@@ -159,7 +167,8 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
             })
             .ToList();
 
-        var analysisId = $"ST-INV-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(100, 999)}";
+        var analysisId =
+            $"ST-INV-{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(100, 999)}";
 
         var rootCause = logAnalysis ?? new LogEvidenceAnalysis
         {
@@ -178,6 +187,17 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
             ? $" Detected signals: {string.Join(" ", logAnalysis.DetectedSignals)}"
             : string.Empty;
 
+        AiWorkerEnrichment? enrichment = null;
+
+        if (logAnalysis is not null)
+        {
+            enrichment = await _aiWorkerClient.EnrichAsync(
+                request.Title,
+                request.Description,
+                logAnalysis,
+                cancellationToken);
+        }
+
         return new AnalysisReport
         {
             AnalysisId = analysisId,
@@ -185,7 +205,9 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
             Status = "Human Approval Required",
             RiskScore = rootCause.RiskScore,
             RiskLevel = rootCause.RiskLevel,
+
             ExecutiveSummary =
+                enrichment?.ReviewerSummary ??
                 $"SpecTrace analyzed {evidence.Count} uploaded evidence source{(evidence.Count == 1 ? "" : "s")} " +
                 $"for {request.Environment}, release {request.ReleaseVersion}. " +
                 $"{rootCause.RootCauseTitle}.{detectedSignalText}",
@@ -195,7 +217,9 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
                 Title = rootCause.RootCauseTitle,
                 Description = rootCause.RootCauseDescription,
                 Confidence = rootCause.Confidence,
-                Recommendation = rootCause.Recommendation
+                Recommendation =
+                    enrichment?.EngineeringRecommendation ??
+                    rootCause.Recommendation
             },
 
             Timeline =
@@ -204,14 +228,16 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
                 {
                     Timestamp = "00:00",
                     Title = "Investigation created",
-                    Description = $"Incident registered for {request.Environment}, release {request.ReleaseVersion}.",
+                    Description =
+                        $"Incident registered for {request.Environment}, release {request.ReleaseVersion}.",
                     Severity = "Info"
                 },
                 new TimelineEvent
                 {
                     Timestamp = "00:04",
                     Title = "Evidence ingested",
-                    Description = $"{evidence.Count} evidence source{(evidence.Count == 1 ? "" : "s")} attached to the investigation.",
+                    Description =
+                        $"{evidence.Count} evidence source{(evidence.Count == 1 ? "" : "s")} attached to the investigation.",
                     Severity = "Info"
                 },
                 new TimelineEvent
@@ -241,12 +267,20 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
 
             AmdProcessing = new AmdProcessingInfo
             {
-                Status = logAnalysis is null
-                    ? "Evidence pipeline queued"
-                    : "Log evidence analyzed",
-                Runtime = "AMD GPU / ROCm multimodal worker",
+                Status = enrichment is null
+                    ? "Deterministic log analysis completed"
+                    : $"AI enrichment completed · {enrichment.Provider}",
+
+                Runtime = enrichment is null
+                    ? "Local .NET evidence analyzer"
+                    : enrichment.Mode.Equals(
+                        "mock",
+                        StringComparison.OrdinalIgnoreCase)
+                        ? "Local FastAPI AI worker · AMD/Gemma-ready"
+                        : "AMD GPU / ROCm Gemma runtime",
+
                 Pipeline =
-                    "Evidence ingestion → log signal extraction → multimodal correlation → root-cause reasoning → QA asset generation"
+                    "Evidence ingestion → log signal extraction → AI enrichment → multimodal correlation → root-cause reasoning → QA asset generation"
             },
 
             CreatedAtUtc = DateTimeOffset.UtcNow
@@ -313,6 +347,7 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
             _ => "Evidence file attached to the investigation."
         };
     }
+
     private static string GetEvidenceSeverity(
         UploadedEvidenceReference evidence,
         LogEvidenceAnalysis? logAnalysis)
@@ -320,7 +355,9 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
         if (evidence.Category.Equals("log", StringComparison.OrdinalIgnoreCase) &&
             logAnalysis is not null)
         {
-            return logAnalysis.RiskLevel.Equals("High", StringComparison.OrdinalIgnoreCase)
+            return logAnalysis.RiskLevel.Equals(
+                "High",
+                StringComparison.OrdinalIgnoreCase)
                 ? "Critical"
                 : "High";
         }

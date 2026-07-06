@@ -5,6 +5,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IDemoAnalysisService, DemoAnalysisService>();
 builder.Services.AddSingleton<ILogEvidenceAnalyzer, LogEvidenceAnalyzer>();
+builder.Services.AddHttpClient<IAiWorkerClient, AiWorkerClient>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8000/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 builder.Services.AddCors(options =>
 {
