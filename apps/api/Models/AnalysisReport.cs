@@ -14,6 +14,7 @@ public sealed class AnalysisReport
     public List<GeneratedAsset> GeneratedAssets { get; init; } = [];
     public HumanApproval HumanApproval { get; init; } = new();
     public AmdProcessingInfo AmdProcessing { get; init; } = new();
+    public AiEnrichmentInfo AiEnrichment { get; init; } = new();
     public DateTimeOffset CreatedAtUtc { get; init; }
 }
 

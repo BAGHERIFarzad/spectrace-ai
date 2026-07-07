@@ -1,0 +1,11 @@
+2026-07-05T21:42:11.203Z ERROR TypeError: Cannot read properties of undefined (reading 'paymentIntentId')
+
+2026-07-05T21:42:11.217Z INFO POST /payments/confirm returned 200 OK
+
+2026-07-05T21:42:11.218Z INFO Payment service response:
+{
+  "transactionId": "txn_8af02d41",
+  "status": "succeeded"
+}
+
+2026-07-05T21:42:11.221Z ERROR Checkout confirmation mapping failed because paymentIntentId was not found.

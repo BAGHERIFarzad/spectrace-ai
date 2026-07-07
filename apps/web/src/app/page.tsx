@@ -62,6 +62,14 @@ type AnalysisReport = {
     runtime: string;
     pipeline: string;
   };
+  aiEnrichment: {
+    available: boolean;
+    provider: string;
+    mode: string;
+    reviewerSummary: string;
+    engineeringRecommendation: string;
+    releaseDecisionRationale: string;
+  };
 };
 
 function severityClass(severity: string) {
@@ -72,7 +80,8 @@ export default function Home() {
   const [analysis, setAnalysis] = useState<AnalysisReport | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedAsset, setSelectedAsset] = useState<GeneratedAsset | null>(null);
+  const [selectedAsset, setSelectedAsset] =
+    useState<GeneratedAsset | null>(null);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
   async function loadDemoAnalysis() {
@@ -212,6 +221,7 @@ export default function Home() {
           <div className="hero-visual">
             <div className="visual-orbit orbit-one" />
             <div className="visual-orbit orbit-two" />
+
             <div className="visual-core">
               <div className="visual-core-inner">
                 <ShieldCheck size={54} strokeWidth={1.35} />
@@ -242,7 +252,26 @@ export default function Home() {
 
         <EvidenceUploadPanel
           onInvestigationCreated={(createdAnalysis) => {
-            setAnalysis(createdAnalysis);
+            const incoming = createdAnalysis as AnalysisReport;
+
+            setAnalysis({
+              ...incoming,
+              aiEnrichment: {
+                available: incoming.aiEnrichment?.available ?? false,
+                provider:
+                  incoming.aiEnrichment?.provider ?? "AI enrichment pending",
+                mode: incoming.aiEnrichment?.mode ?? "deterministic",
+                reviewerSummary:
+                  incoming.aiEnrichment?.reviewerSummary ??
+                  "SpecTrace created the investigation and is preparing the AI reasoning layer.",
+                engineeringRecommendation:
+                  incoming.aiEnrichment?.engineeringRecommendation ??
+                  "Review the extracted evidence, validate the root-cause hypothesis, and perform regression checks before changing the release decision.",
+                releaseDecisionRationale:
+                  incoming.aiEnrichment?.releaseDecisionRationale ??
+                  "A reviewer should validate the extracted evidence before changing the release status.",
+              },
+            });
 
             window.setTimeout(() => {
               document
@@ -346,6 +375,93 @@ export default function Home() {
                 </div>
               </section>
 
+              <section className="panel ai-reasoning-panel">
+                <div className="section-heading-row">
+                  <div>
+                    <p className="hero-kicker">
+                      <span />
+                      AI REASONING LAYER
+                    </p>
+
+                    <h2>From detected signals to a release decision.</h2>
+                  </div>
+
+                  <div className="ai-provider-pill">
+                    <span
+                      className={
+                        analysis.aiEnrichment.available ? "pulse-dot" : ""
+                      }
+                    />
+                    {analysis.aiEnrichment.provider}
+                  </div>
+                </div>
+
+                <div className="ai-reasoning-grid">
+                  <article className="ai-reasoning-card">
+                    <p className="card-label">REVIEWER SUMMARY</p>
+
+                    <p className="ai-reasoning-copy">
+                      {analysis.aiEnrichment.reviewerSummary}
+                    </p>
+                  </article>
+
+                  <article className="ai-reasoning-card ai-rationale-card">
+                    <p className="card-label">RELEASE DECISION RATIONALE</p>
+
+                    <p className="ai-reasoning-copy">
+                      {analysis.aiEnrichment.releaseDecisionRationale}
+                    </p>
+
+                    <div className="ai-runtime-meta">
+                      <span>Mode</span>
+                      <strong>{analysis.aiEnrichment.mode}</strong>
+                    </div>
+                  </article>
+                </div>
+
+                {analysis.aiEnrichment.available &&
+                  analysis.aiEnrichment.engineeringRecommendation && (
+                    <section className="ai-action-plan">
+                      <div className="ai-action-plan-topline">
+                        <div>
+                          <p className="section-kicker">
+                            <span>✦</span> ENGINEERING ACTION PLAN
+                          </p>
+
+                          <h3>From AI reasoning to a safe release.</h3>
+                        </div>
+
+                        <div className="ai-action-provider">
+                          <span className="ai-action-status-dot" />
+                          {analysis.aiEnrichment.provider} ·{" "}
+                          {analysis.aiEnrichment.mode}
+                        </div>
+                      </div>
+
+                      <div className="ai-action-plan-body">
+                        <div className="ai-action-icon">↗</div>
+
+                        <div>
+                          <p className="ai-action-label">
+                            RECOMMENDED ENGINEERING ACTIONS
+                          </p>
+
+                          <p className="ai-action-copy">
+                            {analysis.aiEnrichment.engineeringRecommendation}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="ai-action-footer">
+                        <span>Evidence-linked recommendation</span>
+                        <span>
+                          Human validation required before release
+                        </span>
+                      </div>
+                    </section>
+                  )}
+              </section>
+
               <section className="command-card command-card-timeline">
                 <div className="command-card-label">
                   <Activity size={15} />
@@ -354,7 +470,10 @@ export default function Home() {
 
                 <div className="modern-timeline">
                   {analysis.timeline.map((event) => (
-                    <article className="modern-timeline-item" key={event.timestamp}>
+                    <article
+                      className="modern-timeline-item"
+                      key={event.timestamp}
+                    >
                       <span
                         className={`modern-timeline-node ${severityClass(
                           event.severity
@@ -375,7 +494,10 @@ export default function Home() {
               </section>
             </div>
 
-            <section className="command-card evidence-command-card" id="evidence">
+            <section
+              className="command-card evidence-command-card"
+              id="evidence"
+            >
               <div className="command-card-header">
                 <div>
                   <div className="command-card-label">
@@ -400,12 +522,18 @@ export default function Home() {
                         {item.sourceType.charAt(0)}
                       </span>
 
-                      <span className={`evidence-severity ${severityClass(item.severity)}`}>
+                      <span
+                        className={`evidence-severity ${severityClass(
+                          item.severity
+                        )}`}
+                      >
                         {item.severity}
                       </span>
                     </div>
 
-                    <span className="evidence-source-type">{item.sourceType}</span>
+                    <span className="evidence-source-type">
+                      {item.sourceType}
+                    </span>
 
                     <h4>{item.sourceReference}</h4>
 
@@ -433,7 +561,9 @@ export default function Home() {
                 {analysis.generatedAssets.map((asset) => (
                   <article className="modern-asset-item" key={asset.title}>
                     <span>{asset.type}</span>
+
                     <h4>{asset.title}</h4>
+
                     <p>{asset.contentPreview}</p>
 
                     <button
@@ -487,6 +617,7 @@ export default function Home() {
           </section>
         )}
       </section>
+
       {selectedAsset && analysis && (
         <ArtifactStudio
           asset={selectedAsset}
@@ -498,6 +629,7 @@ export default function Home() {
           onClose={() => setSelectedAsset(null)}
         />
       )}
+
       {isReviewOpen && analysis && (
         <ReviewConsole
           analysisId={analysis.analysisId}

@@ -1,20 +1,11 @@
 from pydantic import BaseModel, Field
 
 
-class EvidenceSignal(BaseModel):
-    name: str
-    detail: str
-
-
 class EnrichmentRequest(BaseModel):
-    investigation_title: str
-    incident_description: str
-    root_cause_title: str
-    root_cause_description: str
-    recommendation: str
-    confidence: int = Field(ge=0, le=100)
-    risk_score: int = Field(ge=0, le=100)
-    detected_signals: list[str] = []
+    investigation_title: str = Field(min_length=3)
+    incident_description: str = Field(min_length=10)
+    root_cause_title: str = Field(min_length=3)
+    root_cause_description: str = Field(min_length=10)
 
 
 class EnrichmentResponse(BaseModel):

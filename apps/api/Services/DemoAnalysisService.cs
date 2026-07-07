@@ -129,6 +129,17 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
                     "Video frames → multimodal evidence extraction → root-cause reasoning → QA asset generation"
             },
 
+            AiEnrichment = new AiEnrichmentInfo
+            {
+                Available = false,
+                Provider = "Demo dataset",
+                Mode = "demo",
+                ReviewerSummary =
+                    "Load an uploaded evidence investigation to generate an AI-enriched reviewer summary.",
+                ReleaseDecisionRationale =
+                    "Demo mode does not call the AI worker."
+            },
+
             CreatedAtUtc = DateTimeOffset.UtcNow
         };
     }
@@ -217,9 +228,10 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
                 Title = rootCause.RootCauseTitle,
                 Description = rootCause.RootCauseDescription,
                 Confidence = rootCause.Confidence,
-                Recommendation =
-                    enrichment?.EngineeringRecommendation ??
-                    rootCause.Recommendation
+                Recommendation = string.IsNullOrWhiteSpace(
+                    enrichment?.EngineeringRecommendation)
+                    ? rootCause.Recommendation
+                    : enrichment.EngineeringRecommendation
             },
 
             Timeline =
@@ -281,6 +293,22 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
 
                 Pipeline =
                     "Evidence ingestion → log signal extraction → AI enrichment → multimodal correlation → root-cause reasoning → QA asset generation"
+            },
+
+            AiEnrichment = new AiEnrichmentInfo
+            {
+                Available = enrichment is not null,
+                Provider = enrichment?.Provider ?? "Not available",
+                Mode = enrichment?.Mode ?? "deterministic",
+                ReviewerSummary = string.IsNullOrWhiteSpace(
+                    enrichment?.ReviewerSummary)
+                    ? "SpecTrace completed deterministic evidence extraction. AI enrichment returned no reviewer narrative for this investigation."
+                    : enrichment.ReviewerSummary,
+
+                ReleaseDecisionRationale = string.IsNullOrWhiteSpace(
+                    enrichment?.ReleaseDecisionRationale)
+                    ? "A reviewer should validate the extracted evidence and generated release-safety actions."
+                    : enrichment.ReleaseDecisionRationale
             },
 
             CreatedAtUtc = DateTimeOffset.UtcNow

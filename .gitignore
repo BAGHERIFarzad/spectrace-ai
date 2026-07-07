@@ -1,0 +1,23 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+services/ai-worker/.venv/
+services/ai-worker/__pycache__/
+services/ai-worker/app/__pycache__/
+*.pyc
+
+# .NET
+**/bin/
+**/obj/
+
+# Next.js
+apps/web/.next/
+apps/web/node_modules/
+
+# OS / editor
+.vscode/
+.DS_Store
+Thumbs.db
