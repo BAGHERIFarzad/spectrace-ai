@@ -763,6 +763,105 @@ export default function Home() {
               </div>
             </section>
 
+            <section className="eval-scenarios-section">
+              <div className="eval-scenarios-header">
+                <div>
+                  <p className="eval-eyebrow">— EVALUATION SCENARIOS</p>
+                  <h2>Built for more than one demo.</h2>
+                  <p>
+                    SpecTrace is designed as a reusable release intelligence workflow. The
+                    checkout incident is the live demo, but the same evidence pipeline can
+                    support screenshots, videos, logs, API traces, and multi-source release
+                    investigations.
+                  </p>
+                </div>
+
+                <span className="eval-header-pill">Product-scale workflow</span>
+              </div>
+
+              <div className="eval-scenarios-grid">
+                <article className="eval-scenario-card eval-scenario-live">
+                  <div className="eval-scenario-top">
+                    <span className="eval-scenario-number">01</span>
+                    <span className="eval-scenario-status">Live demo</span>
+                  </div>
+
+                  <h3>Checkout payment confirmation regression</h3>
+
+                  <p>
+                    Customers complete payment successfully, but remain stuck on the
+                    processing screen without an order confirmation.
+                  </p>
+
+                  <ul>
+                    <li>Application log evidence</li>
+                    <li>Payment response-contract mismatch</li>
+                    <li>Release-blocking recommendation</li>
+                  </ul>
+                </article>
+
+                <article className="eval-scenario-card">
+                  <div className="eval-scenario-top">
+                    <span className="eval-scenario-number">02</span>
+                    <span className="eval-scenario-status">Next evidence type</span>
+                  </div>
+
+                  <h3>Screenshot UI error investigation</h3>
+
+                  <p>
+                    A screenshot can capture the exact product state, visible error message,
+                    broken layout, or missing confirmation step after a release.
+                  </p>
+
+                  <ul>
+                    <li>UI-state evidence</li>
+                    <li>Visual failure context</li>
+                    <li>QA reproduction notes</li>
+                  </ul>
+                </article>
+
+                <article className="eval-scenario-card">
+                  <div className="eval-scenario-top">
+                    <span className="eval-scenario-number">03</span>
+                    <span className="eval-scenario-status">Multimodal-ready</span>
+                  </div>
+
+                  <h3>Video journey failure detection</h3>
+
+                  <p>
+                    A screen recording can show where the customer journey breaks, which
+                    interaction happened before the failure, and what state never completed.
+                  </p>
+
+                  <ul>
+                    <li>Frame-by-frame journey review</li>
+                    <li>Interaction timeline</li>
+                    <li>Customer-impact evidence</li>
+                  </ul>
+                </article>
+
+                <article className="eval-scenario-card eval-scenario-amd">
+                  <div className="eval-scenario-top">
+                    <span className="eval-scenario-number">04</span>
+                    <span className="eval-scenario-status">Future scale</span>
+                  </div>
+
+                  <h3>Multi-source release evidence correlation</h3>
+
+                  <p>
+                    SpecTrace can correlate logs, screenshots, videos, API traces, and
+                    support tickets into one explainable release decision.
+                  </p>
+
+                  <ul>
+                    <li>Cross-source evidence graph</li>
+                    <li>AI-assisted reasoning</li>
+                    <li>Human approval audit trail</li>
+                  </ul>
+                </article>
+              </div>
+            </section>
+
             <section className="human-review-stage">
               <div>
                 <p className="hero-kicker">
