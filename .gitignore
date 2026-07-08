@@ -8,16 +8,24 @@ services/ai-worker/.venv/
 services/ai-worker/__pycache__/
 services/ai-worker/app/__pycache__/
 *.pyc
+.venv/
+__pycache__/
 
 # .NET
+apps/api/bin/
+apps/api/obj/
 **/bin/
 **/obj/
 
 # Next.js
-apps/web/.next/
 apps/web/node_modules/
+apps/web/.next/
+apps/web/next-env.d.ts
 
 # OS / editor
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Runtime uploads
+apps/api/uploads/
