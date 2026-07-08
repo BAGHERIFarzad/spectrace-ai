@@ -136,6 +136,8 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
                 Mode = "demo",
                 ReviewerSummary =
                     "Load an uploaded evidence investigation to generate an AI-enriched reviewer summary.",
+                EngineeringRecommendation =
+                    "Run the live evidence workflow to generate a release-specific engineering action plan.",
                 ReleaseDecisionRationale =
                     "Demo mode does not call the AI worker."
             },
@@ -202,12 +204,23 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
 
         if (logAnalysis is not null)
         {
-            enrichment = await _aiWorkerClient.EnrichAsync(
-                request.Title,
-                request.Description,
-                logAnalysis,
-                cancellationToken);
+            try
+            {
+                enrichment = await _aiWorkerClient.EnrichAsync(
+                    request.Title,
+                    request.Description,
+                    logAnalysis,
+                    cancellationToken);
+            }
+            catch
+            {
+                enrichment = null;
+            }
         }
+
+        var aiEnrichment = enrichment is not null
+            ? CreateRemoteAiEnrichment(enrichment)
+            : CreateFallbackEnrichment(rootCause, logAnalysis);
 
         return new AnalysisReport
         {
@@ -218,20 +231,21 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
             RiskLevel = rootCause.RiskLevel,
 
             ExecutiveSummary =
-                enrichment?.ReviewerSummary ??
-                $"SpecTrace analyzed {evidence.Count} uploaded evidence source{(evidence.Count == 1 ? "" : "s")} " +
-                $"for {request.Environment}, release {request.ReleaseVersion}. " +
-                $"{rootCause.RootCauseTitle}.{detectedSignalText}",
+                !string.IsNullOrWhiteSpace(aiEnrichment.ReviewerSummary) &&
+                aiEnrichment.Available
+                    ? aiEnrichment.ReviewerSummary
+                    : $"SpecTrace analyzed {evidence.Count} uploaded evidence source{(evidence.Count == 1 ? "" : "s")} " +
+                      $"for {request.Environment}, release {request.ReleaseVersion}. " +
+                      $"{rootCause.RootCauseTitle}.{detectedSignalText}",
 
             RootCause = new RootCauseHypothesis
             {
                 Title = rootCause.RootCauseTitle,
                 Description = rootCause.RootCauseDescription,
                 Confidence = rootCause.Confidence,
-                Recommendation = string.IsNullOrWhiteSpace(
-                    enrichment?.EngineeringRecommendation)
+                Recommendation = string.IsNullOrWhiteSpace(aiEnrichment.EngineeringRecommendation)
                     ? rootCause.Recommendation
-                    : enrichment.EngineeringRecommendation
+                    : aiEnrichment.EngineeringRecommendation
             },
 
             Timeline =
@@ -262,6 +276,17 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
                         ? "SpecTrace prepared the evidence set for multimodal analysis and trace generation."
                         : string.Join(" ", logAnalysis.DetectedSignals),
                     Severity = logAnalysis is null ? "High" : "Critical"
+                },
+                new TimelineEvent
+                {
+                    Timestamp = "00:12",
+                    Title = aiEnrichment.Available
+                        ? "AI reasoning completed"
+                        : "Fallback reasoning completed",
+                    Description = aiEnrichment.Available
+                        ? $"Remote enrichment completed through {aiEnrichment.Provider}."
+                        : "SpecTrace used deterministic fallback reasoning because remote AI enrichment was unavailable.",
+                    Severity = aiEnrichment.Available ? "Info" : "High"
                 }
             ],
 
@@ -279,39 +304,72 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
 
             AmdProcessing = new AmdProcessingInfo
             {
-                Status = enrichment is null
-                    ? "Deterministic log analysis completed"
-                    : $"AI enrichment completed · {enrichment.Provider}",
+                Status = aiEnrichment.Available
+                    ? $"AI enrichment completed · {aiEnrichment.Provider}"
+                    : "Deterministic fallback completed · AI worker unavailable",
 
-                Runtime = enrichment is null
-                    ? "Local .NET evidence analyzer"
-                    : enrichment.Mode.Equals(
-                        "mock",
-                        StringComparison.OrdinalIgnoreCase)
+                Runtime = aiEnrichment.Available
+                    ? aiEnrichment.Mode.Equals("mock", StringComparison.OrdinalIgnoreCase)
                         ? "Local FastAPI AI worker · AMD/Gemma-ready"
-                        : "AMD GPU / ROCm Gemma runtime",
+                        : "Remote AI runtime · AMD/Gemma-compatible architecture"
+                    : "Local .NET evidence analyzer · fallback-safe runtime",
 
                 Pipeline =
-                    "Evidence ingestion → log signal extraction → AI enrichment → multimodal correlation → root-cause reasoning → QA asset generation"
+                    "Evidence ingestion → log signal extraction → AI enrichment/fallback → multimodal correlation → root-cause reasoning → QA asset generation"
             },
 
-            AiEnrichment = new AiEnrichmentInfo
-            {
-                Available = enrichment is not null,
-                Provider = enrichment?.Provider ?? "Not available",
-                Mode = enrichment?.Mode ?? "deterministic",
-                ReviewerSummary = string.IsNullOrWhiteSpace(
-                    enrichment?.ReviewerSummary)
-                    ? "SpecTrace completed deterministic evidence extraction. AI enrichment returned no reviewer narrative for this investigation."
-                    : enrichment.ReviewerSummary,
-
-                ReleaseDecisionRationale = string.IsNullOrWhiteSpace(
-                    enrichment?.ReleaseDecisionRationale)
-                    ? "A reviewer should validate the extracted evidence and generated release-safety actions."
-                    : enrichment.ReleaseDecisionRationale
-            },
+            AiEnrichment = aiEnrichment,
 
             CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+    }
+
+    private static AiEnrichmentInfo CreateRemoteAiEnrichment(
+        AiWorkerEnrichment enrichment)
+    {
+        return new AiEnrichmentInfo
+        {
+            Available = true,
+            Provider = string.IsNullOrWhiteSpace(enrichment.Provider)
+                ? "Remote AI worker"
+                : enrichment.Provider,
+            Mode = string.IsNullOrWhiteSpace(enrichment.Mode)
+                ? "remote"
+                : enrichment.Mode,
+            ReviewerSummary = string.IsNullOrWhiteSpace(enrichment.ReviewerSummary)
+                ? "SpecTrace completed remote AI enrichment, but the provider returned an empty reviewer summary."
+                : enrichment.ReviewerSummary,
+            EngineeringRecommendation = string.IsNullOrWhiteSpace(enrichment.EngineeringRecommendation)
+                ? "Review the extracted evidence, validate the root-cause hypothesis, and run regression checks before changing the release decision."
+                : enrichment.EngineeringRecommendation,
+            ReleaseDecisionRationale = string.IsNullOrWhiteSpace(enrichment.ReleaseDecisionRationale)
+                ? "A reviewer should validate the AI-enriched investigation before approving, requesting changes, or blocking the release."
+                : enrichment.ReleaseDecisionRationale
+        };
+    }
+
+    private static AiEnrichmentInfo CreateFallbackEnrichment(
+        LogEvidenceAnalysis rootCause,
+        LogEvidenceAnalysis? logAnalysis)
+    {
+        var detectedSignals = logAnalysis?.DetectedSignals.Count > 0
+            ? string.Join(" ", logAnalysis.DetectedSignals)
+            : "the uploaded evidence";
+
+        return new AiEnrichmentInfo
+        {
+            Available = false,
+            Provider = "SpecTrace deterministic fallback",
+            Mode = "local-fallback",
+            ReviewerSummary =
+                "SpecTrace completed the investigation using deterministic evidence analysis because the remote AI worker was unavailable. " +
+                $"The investigation still identified a likely release risk from {detectedSignals}",
+            EngineeringRecommendation = string.IsNullOrWhiteSpace(rootCause.Recommendation)
+                ? "Review the extracted evidence, validate the release change set, and run the generated regression checks before approval."
+                : rootCause.Recommendation,
+            ReleaseDecisionRationale =
+                "A human reviewer should validate the evidence before approving the release. " +
+                "Because the issue may affect release quality and customer experience, the release should not proceed until the regression is verified and the recommended fix is tested."
         };
     }
 

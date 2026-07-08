@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import {
   Activity,
   ArrowUpRight,
@@ -84,6 +84,24 @@ export default function Home() {
     useState<GeneratedAsset | null>(null);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
+  function scrollToSection(
+    event: MouseEvent<HTMLAnchorElement>,
+    sectionId: string
+  ) {
+    event.preventDefault();
+
+    const target = document.getElementById(sectionId);
+
+    if (!target) {
+      return;
+    }
+
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+
   async function loadDemoAnalysis() {
     setIsLoading(true);
     setError("");
@@ -126,23 +144,39 @@ export default function Home() {
           </div>
         </div>
 
-        <nav className="rail-navigation">
-          <a className="rail-link rail-link-active" href="#workspace">
+        <nav className="rail-navigation" aria-label="SpecTrace sections">
+          <a
+            className="rail-link rail-link-active"
+            href="#workspace"
+            onClick={(event) => scrollToSection(event, "workspace")}
+          >
             <Layers3 size={17} />
             <span>Workspace</span>
           </a>
 
-          <a className="rail-link" href="#upload">
+          <a
+            className="rail-link"
+            href="#evidence-workspace"
+            onClick={(event) => scrollToSection(event, "evidence-workspace")}
+          >
             <FileSearch size={17} />
             <span>Evidence</span>
           </a>
 
-          <a className="rail-link" href="#assets">
+          <a
+            className="rail-link"
+            href="#assets"
+            onClick={(event) => scrollToSection(event, "assets")}
+          >
             <Sparkles size={17} />
             <span>Assets</span>
           </a>
 
-          <a className="rail-link" href="#amd">
+          <a
+            className="rail-link"
+            href="#amd"
+            onClick={(event) => scrollToSection(event, "amd")}
+          >
             <Activity size={17} />
             <span>AMD Runtime</span>
           </a>
@@ -250,39 +284,41 @@ export default function Home() {
           </div>
         </section>
 
-        <EvidenceUploadPanel
-          onInvestigationCreated={(createdAnalysis) => {
-            const incoming = createdAnalysis as AnalysisReport;
+        <section id="evidence-workspace" className="evidence-workspace-anchor">
+          <EvidenceUploadPanel
+            onInvestigationCreated={(createdAnalysis) => {
+              const incoming = createdAnalysis as AnalysisReport;
 
-            setAnalysis({
-              ...incoming,
-              aiEnrichment: {
-                available: incoming.aiEnrichment?.available ?? false,
-                provider:
-                  incoming.aiEnrichment?.provider ?? "AI enrichment pending",
-                mode: incoming.aiEnrichment?.mode ?? "deterministic",
-                reviewerSummary:
-                  incoming.aiEnrichment?.reviewerSummary ??
-                  "SpecTrace created the investigation and is preparing the AI reasoning layer.",
-                engineeringRecommendation:
-                  incoming.aiEnrichment?.engineeringRecommendation ??
-                  "Review the extracted evidence, validate the root-cause hypothesis, and perform regression checks before changing the release decision.",
-                releaseDecisionRationale:
-                  incoming.aiEnrichment?.releaseDecisionRationale ??
-                  "A reviewer should validate the extracted evidence before changing the release status.",
-              },
-            });
+              setAnalysis({
+                ...incoming,
+                aiEnrichment: {
+                  available: incoming.aiEnrichment?.available ?? false,
+                  provider:
+                    incoming.aiEnrichment?.provider ?? "AI enrichment pending",
+                  mode: incoming.aiEnrichment?.mode ?? "deterministic",
+                  reviewerSummary:
+                    incoming.aiEnrichment?.reviewerSummary ??
+                    "SpecTrace created the investigation and is preparing the AI reasoning layer.",
+                  engineeringRecommendation:
+                    incoming.aiEnrichment?.engineeringRecommendation ??
+                    "Review the extracted evidence, validate the root-cause hypothesis, and perform regression checks before changing the release decision.",
+                  releaseDecisionRationale:
+                    incoming.aiEnrichment?.releaseDecisionRationale ??
+                    "A reviewer should validate the extracted evidence before changing the release status.",
+                },
+              });
 
-            window.setTimeout(() => {
-              document
-                .getElementById("analysis-command-center")
-                ?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start",
-                });
-            }, 150);
-          }}
-        />
+              window.setTimeout(() => {
+                document
+                  .getElementById("analysis-command-center")
+                  ?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+              }, 150);
+            }}
+          />
+        </section>
 
         {isLoading && (
           <section className="cinematic-loading">
@@ -577,6 +613,156 @@ export default function Home() {
               </div>
             </section>
 
+            <section className="judge-mode-section">
+              <div className="section-heading-row">
+                <p className="section-eyebrow">— JUDGE MODE</p>
+                <span className="judge-pill">Unicorn Track Alignment</span>
+              </div>
+
+              <div className="judge-mode-header">
+                <div>
+                  <h2>Why SpecTrace matters.</h2>
+                  <p>
+                    SpecTrace is not another generic AI incident summary. It is an
+                    evidence-linked release intelligence workflow that connects product
+                    evidence, AI reasoning, generated engineering assets, and human approval
+                    into one traceable decision.
+                  </p>
+                </div>
+              </div>
+
+              <div className="judge-grid">
+                <article className="judge-card">
+                  <span className="judge-index">01</span>
+                  <h3>Creativity and Originality</h3>
+                  <p>
+                    SpecTrace keeps every AI conclusion connected to proof. Instead of
+                    producing a disconnected summary, it builds a traceable investigation
+                    from uploaded evidence to release decision.
+                  </p>
+                </article>
+
+                <article className="judge-card">
+                  <span className="judge-index">02</span>
+                  <h3>Product / Market Potential</h3>
+                  <p>
+                    Engineering, QA, SRE, and product teams need a trusted way to decide if a
+                    release is safe. SpecTrace can become a release intelligence layer for
+                    teams shipping high-impact software.
+                  </p>
+                </article>
+
+                <article className="judge-card">
+                  <span className="judge-index">03</span>
+                  <h3>Completeness</h3>
+                  <p>
+                    The current workflow is end-to-end: upload evidence, create an
+                    investigation, detect root cause, enrich with AI, generate QA assets, and
+                    require a human release decision.
+                  </p>
+                </article>
+
+                <article className="judge-card judge-card-amd">
+                  <span className="judge-index">04</span>
+                  <h3>Use of AMD Platforms</h3>
+                  <p>
+                    The AI worker is designed for AMD/Gemma-style inference and future
+                    ROCm-powered execution. The current demo uses Fireworks AI serverless as
+                    a billing-safe remote runtime while preserving an AMD-ready architecture.
+                  </p>
+                </article>
+              </div>
+            </section>
+
+            <section className="rt-strategy-section">
+              <div className="rt-strategy-header">
+                <div>
+                  <p className="rt-eyebrow">— AI ROUTING STRATEGY</p>
+                  <h2>Runtime-aware evidence reasoning.</h2>
+                  <p>
+                    SpecTrace separates the product workflow from the AI runtime, so the
+                    investigation pipeline stays resilient today and can move toward
+                    AMD/Gemma-style acceleration as infrastructure access becomes available.
+                  </p>
+                </div>
+
+                <span className="rt-header-pill">Demo-safe routing</span>
+              </div>
+
+              <div className="rt-route-grid">
+                <article className="rt-route-card rt-route-live">
+                  <div className="rt-card-top">
+                    <span className="rt-number">01</span>
+                    <span className="rt-status">Active now</span>
+                  </div>
+
+                  <h3>Fireworks AI serverless route</h3>
+
+                  <p>
+                    Uploaded log evidence and incident context are enriched through the
+                    Python AI worker using Fireworks AI serverless inference.
+                  </p>
+
+                  <div className="rt-flow">
+                    <span>Log evidence</span>
+                    <strong>→</strong>
+                    <span>FastAPI worker</span>
+                    <strong>→</strong>
+                    <span>Fireworks AI</span>
+                    <strong>→</strong>
+                    <span>Reviewer summary</span>
+                  </div>
+                </article>
+
+                <article className="rt-route-card rt-route-fallback">
+                  <div className="rt-card-top">
+                    <span className="rt-number">02</span>
+                    <span className="rt-status">Fallback-safe</span>
+                  </div>
+
+                  <h3>Deterministic local route</h3>
+
+                  <p>
+                    If the AI worker or remote provider is unavailable, the .NET backend
+                    still completes the investigation using deterministic evidence analysis.
+                  </p>
+
+                  <div className="rt-flow">
+                    <span>Evidence signals</span>
+                    <strong>→</strong>
+                    <span>.NET analyzer</span>
+                    <strong>→</strong>
+                    <span>Local fallback</span>
+                    <strong>→</strong>
+                    <span>Release decision</span>
+                  </div>
+                </article>
+
+                <article className="rt-route-card rt-route-amd">
+                  <div className="rt-card-top">
+                    <span className="rt-number">03</span>
+                    <span className="rt-status">AMD-ready</span>
+                  </div>
+
+                  <h3>Future AMD / ROCm route</h3>
+
+                  <p>
+                    The AI worker architecture is prepared for AMD Developer Cloud,
+                    ROCm-powered execution, and Gemma-style inference when credits and
+                    runtime access are available.
+                  </p>
+
+                  <div className="rt-flow">
+                    <span>Multimodal evidence</span>
+                    <strong>→</strong>
+                    <span>AMD GPU / ROCm</span>
+                    <strong>→</strong>
+                    <span>Gemma-ready reasoning</span>
+                  </div>
+                </article>
+              </div>
+            </section>
+
             <section className="human-review-stage">
               <div>
                 <p className="hero-kicker">
@@ -614,6 +800,7 @@ export default function Home() {
                 <small>{analysis.amdProcessing.runtime}</small>
               </div>
             </section>
+            <div className="bottom-scroll-spacer" />
           </section>
         )}
       </section>
