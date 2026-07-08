@@ -380,25 +380,25 @@ public sealed class DemoAnalysisService : IDemoAnalysisService
             new GeneratedAsset
             {
                 Type = "Playwright Test",
-                Title = "generated-regression-check",
+                Title = "checkout-confirmation-regression.spec.ts",
                 ContentPreview =
-                    "A browser regression test will validate the primary journey described by the investigation.",
+                    "End-to-end regression test covering successful payment response, transactionId mapping, confirmation page visibility, and removal of the processing state.",
                 Status = "Ready for review"
             },
             new GeneratedAsset
             {
                 Type = "GitHub Issue",
-                Title = "Evidence-linked product investigation",
+                Title = "Block release: checkout confirmation fails after payment",
                 ContentPreview =
-                    "A structured engineering issue with linked evidence, risk context, and recommended next actions.",
+                    "Engineering issue with severity, customer impact, evidence links, root-cause hypothesis, fix plan, and release-blocking checklist.",
                 Status = "Draft"
             },
             new GeneratedAsset
             {
                 Type = "Acceptance Criteria",
-                Title = "Release safety criteria",
+                Title = "Checkout release safety criteria",
                 ContentPreview =
-                    "Clear validation criteria generated from the incident description and evidence sources.",
+                    "Given/When/Then release criteria covering payment confirmation, response-contract compatibility, regression testing, and human approval.",
                 Status = "Ready for review"
             }
         ];
