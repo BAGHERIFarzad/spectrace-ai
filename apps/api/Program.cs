@@ -29,6 +29,17 @@ app.UseCors("Frontend");
 
 app.MapControllers();
 
+app.MapGet("/", () =>
+{
+    return Results.Ok(new
+    {
+        status = "ok",
+        service = "spectrace-api",
+        message = "SpecTrace API is running",
+        timestampUtc = DateTimeOffset.UtcNow
+    });
+});
+
 app.MapGet("/healthz", () =>
 {
     return Results.Ok(new
