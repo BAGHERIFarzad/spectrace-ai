@@ -14,7 +14,6 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+EXPOSE 10000
 
-ENTRYPOINT ["dotnet", "api.dll"]
+ENTRYPOINT ["sh", "-c", "dotnet api.dll --urls http://0.0.0.0:${PORT:-10000}"]
