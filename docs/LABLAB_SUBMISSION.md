@@ -167,6 +167,16 @@ The current demo does not require paid Fireworks dedicated deployment or a payme
 
 ---
 
+## AMD GPU Access Validation
+
+AMD AI Notebook access was allocated during the hackathon and validated with a runtime environment check.
+
+The current live SpecTrace demo uses Vercel, Render, and Fireworks AI serverless inference. The AMD AI Notebook environment is reserved for the next acceleration phase, including ROCm/GPU-backed inference, Gemma-style model routing, screenshot evidence analysis, video-frame extraction, and larger multimodal evidence-correlation workloads.
+
+This means SpecTrace has a working live product today and a validated AMD GPU pathway for future runtime expansion.
+
+---
+
 ## Technical Stack
 
 - Next.js
