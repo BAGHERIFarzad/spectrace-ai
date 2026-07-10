@@ -6,6 +6,18 @@ SpecTrace AI
 
 ---
 
+## Thumbnail / Cover Image
+
+Use:
+
+```text
+docs/media/spectrace-thumbnail.png
+```
+
+The thumbnail presents SpecTrace as a polished AI release-intelligence product. It shows an evidence graph, release pipeline, application logs, AI reasoning, human approval, and AMD/GPU-inspired runtime visuals.
+
+---
+
 ## One-Line Pitch
 
 SpecTrace turns fragmented product evidence into traceable AI-powered release decisions, generated QA assets, and human approval workflows.
@@ -86,6 +98,9 @@ It provides:
 - Generated GitHub issue draft
 - Generated acceptance criteria
 - Human approval gate
+- Runtime Strategy section
+- Evaluation Scenarios section
+- Judge Mode section
 
 This transforms raw incident evidence into an engineering-ready release decision.
 
@@ -126,6 +141,7 @@ SpecTrace detects this as a payment response-contract mismatch and recommends bl
 7. The frontend renders the complete investigation.
 8. The user can open generated engineering assets.
 9. A human reviewer approves, requests changes, or blocks the release.
+10. If the AI worker is unavailable, deterministic fallback keeps the investigation usable.
 
 ---
 
@@ -197,6 +213,23 @@ The reviewer can:
 
 If the AI worker or remote AI provider is unavailable, SpecTrace still creates a complete investigation using deterministic fallback reasoning.
 
+### Runtime Strategy
+
+SpecTrace shows three runtime paths:
+
+- Fireworks AI serverless route
+- Deterministic local fallback route
+- Future AMD / ROCm / Gemma-ready route
+
+### Evaluation Scenarios
+
+The UI shows that SpecTrace can support:
+
+- Checkout payment confirmation regression
+- Screenshot UI error investigation
+- Video journey failure detection
+- Multi-source release evidence correlation
+
 ---
 
 ## Judging Criteria Alignment
@@ -234,8 +267,11 @@ The prototype is functional end-to-end:
 - Evidence analysis
 - Generated artifacts
 - Human approval workflow
-- Documentation
 - Judge Mode section
+- Runtime Strategy section
+- Evaluation Scenarios section
+- Documentation
+- Project thumbnail
 
 ### Use of AMD Platforms
 
@@ -270,42 +306,65 @@ It helps teams not only understand an incident, but decide what to do next and p
 6. Show the engineering action plan.
 7. Open the generated Playwright test / GitHub issue / acceptance criteria.
 8. Use the Human Approval Gate to block the release.
-9. Show the AMD Platform Integration and Judge Mode sections.
+9. Show the AMD Platform Integration, Runtime Strategy, Evaluation Scenarios, and Judge Mode sections.
 
 ---
 
-## Project Links
+## Media Assets
 
-GitHub Repository:
-
-```text
-PASTE_GITHUB_REPO_URL_HERE
-```
-
-Live App:
+### Project Thumbnail
 
 ```text
-PASTE_LIVE_APP_URL_HERE
+docs/media/spectrace-thumbnail.png
 ```
 
-Demo Video:
+### Demo Video
 
 ```text
 PASTE_DEMO_VIDEO_URL_HERE
 ```
 
-Slides:
+### Repository
 
 ```text
-PASTE_SLIDES_URL_HERE
+PASTE_GITHUB_REPOSITORY_URL_HERE
 ```
+
+### Live App
+
+```text
+PASTE_LIVE_APP_URL_HERE
+```
+
+### LabLab Project
+
+```text
+PASTE_LABLAB_PROJECT_URL_HERE
+```
+
+### Screenshots to Include
+
+Recommended screenshots for LabLab:
+
+1. Landing page / hero section
+2. Evidence upload workspace
+3. Investigation complete dashboard
+4. AI reasoning layer
+5. Generated engineering assets modal
+6. Judge Mode section
+7. AI Routing Strategy section
+8. Evaluation Scenarios section
+9. Human Approval Gate
+10. AMD Platform Integration section
 
 ---
 
 ## Final Pitch
 
-SpecTrace helps engineering teams find the truth behind every release.
+SpecTrace AI helps engineering teams find the truth behind every release.
 
-It turns fragmented evidence into traceable AI-powered investigations, generates the assets teams need to fix and validate issues, and keeps humans in control of release decisions.
+It turns fragmented product evidence into traceable AI-powered investigations, generates the assets teams need to fix and validate issues, and keeps humans in control of release decisions.
 
-It is a practical AI product for safer software delivery.
+The current prototype combines a polished Next.js interface, .NET API backend, Python FastAPI AI worker, Fireworks AI serverless enrichment, deterministic fallback safety, and an AMD/Gemma-ready architecture.
+
+SpecTrace is more than an AI summary tool. It is a release intelligence workflow from evidence to decision.

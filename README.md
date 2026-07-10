@@ -1,10 +1,17 @@
+<p align="center">
+  <img src="docs/media/spectrace-thumbnail.png" alt="SpecTrace AI thumbnail" width="100%" />
+</p>
+
 # SpecTrace AI — Evidence Intelligence for Safer Software Releases
 
-SpecTrace is an AI-powered evidence intelligence workspace for engineering, QA, SRE, and product teams.
+<p align="center">
+  <strong>AMD Developer Hackathon ACT II · Unicorn Track</strong><br />
+  Evidence Intelligence · Fireworks AI · .NET · Next.js · FastAPI · AMD/Gemma-ready architecture
+</p>
+
+SpecTrace AI is an AI-powered evidence intelligence workspace for engineering, QA, SRE, and product teams.
 
 It turns fragmented release evidence — application logs, incident context, screenshots, videos, and customer-impact signals — into traceable root-cause hypotheses, AI reviewer summaries, engineering action plans, generated QA assets, and human release decisions.
-
-SpecTrace is built for the AMD Developer Hackathon: ACT II, Unicorn Track.
 
 > Current demo status: SpecTrace has a working full-stack investigation workflow with Fireworks AI serverless enrichment and deterministic fallback safety. The AMD Developer Cloud / ROCm execution path is planned for the AMD credit phase and is intentionally not falsely claimed as active until it is actually running.
 
@@ -29,6 +36,18 @@ Instead of asking:
 SpecTrace helps teams answer:
 
 > “Is this release safe to ship, what proof do we have, what should engineering do next, and who approved the decision?”
+
+---
+
+## Project Media
+
+- **Thumbnail / Cover:** `docs/media/spectrace-thumbnail.png`
+- **Demo Video:** `PASTE_DEMO_VIDEO_URL_HERE`
+- **Live App:** `PASTE_LIVE_APP_URL_HERE`
+- **LabLab Submission:** `PASTE_LABLAB_PROJECT_URL_HERE`
+- **Repository:** `https://github.com/BAGHERIFarzad/spectrace-ai`
+
+The project thumbnail is designed to communicate the core SpecTrace story at a glance: evidence graph, release pipeline, AI reasoning, application logs, human approval, and AMD/GPU-ready infrastructure direction.
 
 ---
 
@@ -104,6 +123,23 @@ The UI includes a judge-facing section aligned with the Unicorn Track criteria:
 - Completeness
 - Use of AMD Platforms
 
+### Runtime Strategy
+
+SpecTrace separates the product workflow from the AI runtime:
+
+- Active route: Fireworks AI serverless enrichment
+- Fallback route: deterministic local .NET evidence analyzer
+- Future route: AMD Developer Cloud / ROCm / Gemma-style inference
+
+### Evaluation Scenarios
+
+SpecTrace is designed for more than one demo:
+
+- Checkout payment confirmation regression
+- Screenshot UI error investigation
+- Video journey failure detection
+- Multi-source release evidence correlation
+
 ---
 
 ## Architecture
@@ -131,6 +167,7 @@ apps/web              Next.js frontend
 apps/api              .NET API backend
 services/ai-worker    Python FastAPI AI worker
 docs/                 Architecture, runbook, demo, judging docs
+docs/media            Thumbnail and project media
 ```
 
 ---
@@ -174,7 +211,7 @@ AMD Developer Cloud / ROCm / Gemma-style inference
 
 Important note:
 
-SpecTrace does not require a paid Fireworks dedicated deployment for the current demo. The project uses the available Fireworks serverless credits safely. Dedicated Gemma deployments are not used unless access is available without adding a payment method.
+SpecTrace does not require a paid Fireworks dedicated deployment for the current demo. The project uses available Fireworks serverless credits safely. Dedicated Gemma deployments are not used unless access is available without adding a payment method.
 
 ---
 
@@ -210,14 +247,6 @@ The repository ignores:
 
 ### Terminal 1 — .NET API
 
-Path:
-
-```powershell
-C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai
-```
-
-Command:
-
 ```powershell
 cd "C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai"
 dotnet run --project apps/api
@@ -232,14 +261,6 @@ http://localhost:5166
 ---
 
 ### Terminal 2 — Python AI Worker
-
-Path:
-
-```powershell
-C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai\services\ai-worker
-```
-
-Commands:
 
 ```powershell
 cd "C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai\services\ai-worker"
@@ -256,14 +277,6 @@ http://localhost:8000/docs
 ---
 
 ### Terminal 3 — Next.js Web App
-
-Path:
-
-```powershell
-C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai\apps\web
-```
-
-Command:
 
 ```powershell
 cd "C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai\apps\web"
@@ -297,7 +310,9 @@ http://localhost:3000
    - Generated engineering assets
    - Human approval gate
    - Judge Mode section
-   - AMD platform integration section
+   - AI Runtime Strategy section
+   - Evaluation Scenarios section
+   - AMD Platform Integration section
 
 ---
 
@@ -317,6 +332,23 @@ Mode: local-fallback
 ```
 
 This ensures the demo remains usable even if the remote AI provider is unavailable.
+
+---
+
+## Screenshots to Add
+
+Recommended screenshots for the final README:
+
+1. Landing page / hero section
+2. Evidence upload workspace
+3. Investigation complete dashboard
+4. AI reasoning layer
+5. Generated engineering assets modal
+6. Judge Mode section
+7. AI Routing Strategy section
+8. Evaluation Scenarios section
+9. Human Approval Gate
+10. AMD Platform Integration section
 
 ---
 
@@ -351,7 +383,10 @@ The current prototype has:
 - Generated engineering assets
 - Human approval workflow
 - Judge-facing alignment section
+- Runtime Strategy section
+- Evaluation Scenarios section
 - Documentation
+- Project thumbnail
 
 ### Use of AMD Platforms
 
@@ -361,22 +396,36 @@ SpecTrace is designed around AMD AI infrastructure and Fireworks AI credits. The
 
 ## Roadmap Before Final Submission
 
-The project is not considered fully finished until these are completed:
+Completed:
 
+- Working Next.js product UI
+- .NET API backend
+- Python FastAPI AI worker
+- Fireworks AI serverless enrichment
+- Deterministic fallback safety
+- Judge Mode section
+- AI Runtime Strategy section
+- Evaluation Scenarios section
+- Generated Playwright / GitHub Issue / Acceptance Criteria drafts
+- README, architecture docs, runbook, judging alignment docs
+- Project thumbnail / cover image
+
+Remaining:
+
+- Final 2-minute demo video
+- Final LabLab AI project submission
+- Optional deployment link
+- Final screenshots inside README
+- Final validation with AI worker running and fallback mode tested
+
+Future AMD phase:
+
+- AMD Developer Cloud / ROCm execution
+- Gemma-style inference route
 - Screenshot evidence analysis
-- Video frame extraction and visual timeline
-- Cross-source correlation between logs, screenshots, video frames, and API traces
+- Video frame extraction
+- Cross-source multimodal correlation
 - Investigation pack export
-- Stronger generated GitHub issue / test / acceptance criteria workflow
-- Evaluation scenarios
-- Production-quality README and run instructions
-- Deployment instructions
-- Cover image
-- Slides
-- Demo video
-- LabLab AI submission text
-
-AMD Developer Cloud / ROCm execution will be added when credits are available.
 
 ---
 
