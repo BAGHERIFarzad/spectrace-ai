@@ -28,4 +28,14 @@ app.UseCors("Frontend");
 
 app.MapControllers();
 
+app.MapGet("/healthz", () =>
+{
+    return Results.Ok(new
+    {
+        status = "ok",
+        service = "spectrace-api",
+        timestampUtc = DateTimeOffset.UtcNow
+    });
+});
+
 app.Run();
