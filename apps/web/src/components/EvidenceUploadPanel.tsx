@@ -112,6 +112,9 @@ const uploadOptions: {
   },
 ];
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5166";
+
 function formatFileSize(bytes: number) {
   if (bytes < 1024 * 1024) {
     return `${Math.ceil(bytes / 1024)} KB`;
@@ -162,13 +165,10 @@ export default function EvidenceUploadPanel({
       formData.append("file", file);
       formData.append("category", category);
 
-      const response = await fetch(
-        "http://localhost:5166/api/evidence/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/evidence/upload`, {
+        method: "POST",
+        body: formData,
+      });
 
       if (!response.ok) {
         const errorMessage = await response.text();
@@ -226,16 +226,13 @@ export default function EvidenceUploadPanel({
         })),
       };
 
-      const response = await fetch(
-        "http://localhost:5166/api/analyses/investigate",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(request),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/analyses/investigate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
+      });
 
       if (!response.ok) {
         const errorMessage = await response.text();

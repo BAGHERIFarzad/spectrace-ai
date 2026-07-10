@@ -72,6 +72,9 @@ type AnalysisReport = {
   };
 };
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5166";
+
 function severityClass(severity: string) {
   return severity.toLowerCase().replaceAll(" ", "-");
 }
@@ -107,7 +110,7 @@ export default function Home() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5166/api/analyses/demo", {
+      const response = await fetch(`${API_BASE_URL}/api/analyses/demo`, {
         method: "POST",
       });
 
@@ -119,7 +122,7 @@ export default function Home() {
       setAnalysis(data);
     } catch {
       setError(
-        "Unable to reach the SpecTrace API. Confirm that the .NET API is running on port 5166."
+        "Unable to reach the SpecTrace API. Confirm that the deployed API is reachable or that the local .NET API is running."
       );
     } finally {
       setIsLoading(false);
