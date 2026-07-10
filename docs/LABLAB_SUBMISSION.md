@@ -331,26 +331,21 @@ docs/media/spectrace-thumbnail.png
 ### Demo Video
 
 ```text
-PASTE_DEMO_VIDEO_URL_HERE
+Uploaded directly on LabLab AI submission
 ```
 
 ### Repository
 
 ```text
-PASTE_GITHUB_REPOSITORY_URL_HERE
+https://github.com/BAGHERIFarzad/spectrace-ai
 ```
 
 ### Live App
 
 ```text
-PASTE_LIVE_APP_URL_HERE
+https://spectrace-ai.vercel.app
 ```
 
-### LabLab Project
-
-```text
-PASTE_LABLAB_PROJECT_URL_HERE
-```
 
 ### Screenshots to Include
 

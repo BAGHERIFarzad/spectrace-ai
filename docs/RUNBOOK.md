@@ -40,7 +40,8 @@ Use `.env.example` for safe public configuration examples.
 ## Terminal 1 — Run .NET API
 
 ```powershell
-cd "C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai"
+git clone https://github.com/BAGHERIFarzad/spectrace-ai.git
+cd spectrace-ai
 dotnet run --project apps/api
 ```
 
@@ -55,7 +56,9 @@ http://localhost:5166
 ## Terminal 2 — Run Python AI Worker
 
 ```powershell
-cd "C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai\services\ai-worker"
+git clone https://github.com/BAGHERIFarzad/spectrace-ai.git
+cd spectrace-ai
+cd "services\ai-worker"
 .\.venv\Scripts\Activate.ps1
 python -m uvicorn app.main:app --reload --port 8000
 ```
@@ -71,7 +74,9 @@ http://localhost:8000/docs
 ## Terminal 3 — Run Web App
 
 ```powershell
-cd "C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai\apps\web"
+git clone https://github.com/BAGHERIFarzad/spectrace-ai.git
+cd spectrace-ai
+cd "\apps\web"
 npm run dev
 ```
 
@@ -181,7 +186,8 @@ Do not commit secrets, generated build output, or uploaded runtime logs.
 Run from the repository root:
 
 ```powershell
-cd "C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai"
+git clone https://github.com/BAGHERIFarzad/spectrace-ai.git
+cd spectrace-ai
 git add docs/ARCHITECTURE.md
 git add docs/RUNBOOK.md
 git status
@@ -198,7 +204,9 @@ git push
 Make sure Terminal 2 is running:
 
 ```powershell
-cd "C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai\services\ai-worker"
+git clone https://github.com/BAGHERIFarzad/spectrace-ai.git
+cd spectrace-ai
+cd "\services\ai-worker"
 .\.venv\Scripts\Activate.ps1
 python -m uvicorn app.main:app --reload --port 8000
 ```
@@ -216,7 +224,9 @@ dotnet run --project apps/api
 Make sure Terminal 3 is running:
 
 ```powershell
-cd "C:\Users\farza\Desktop\All Hackathon\AMD Developer Hackathon Act 2\Code\spectrace-ai\apps\web"
+git clone https://github.com/BAGHERIFarzad/spectrace-ai.git
+cd spectrace-ai
+cd "apps\web"
 npm run dev
 ```
 
